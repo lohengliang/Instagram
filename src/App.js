@@ -23,7 +23,7 @@ class App extends Component {
       .child("images/" + this.state.selectedFile.name)
       .put(this.state.selectedFile)
       .then(function(snapshot) {
-        console.log("Uploaded a blob or file!");
+        alert("Uploaded a file!");
       });
   };
 
