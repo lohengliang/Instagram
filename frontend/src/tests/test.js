@@ -1,6 +1,7 @@
 import fetch from "cross-fetch";
 import "regenerator-runtime/runtime";
-import { selectImage, SELECT_IMAGE } from "./actions";
+import { selectImage, SELECT_IMAGE } from "../actions";
+
 test("compare images", async () => {
   var logo512PngResult = await fetch("http://localhost:3000/logo512.png")
     .then(function(response) {
@@ -26,7 +27,7 @@ describe("select image", () => {
         return response.blob();
       })
       .then(imageBlob => {
-        const file = new File([imageBlob], "logo512.png", {
+        const file = new File([imageBlob], "logo192.png", {
           type: "image/png"
         });
         const expectedAction = {

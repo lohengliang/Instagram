@@ -45,27 +45,41 @@ export function clearImageURLs() {
 }
 
 // Fetch image urls that are linked to the logged in user
+// Firebase security rules can tell the uid of the user that called the functions from the frontend, therefore
+// fetchImageURLs function is implemented at the frontend and the security rules at the backend are configured
+// to verify the uid during each function call
 export function fetchImageURLs() {
   return dispatch => {
-    firebase
-      .firestore()
-      .collection("images")
-      .where(
-        "userId",
-        "==",
-        firebase.auth().currentUser ? firebase.auth().currentUser.uid : ""
-      )
-      .onSnapshot(snapshot => {
-        var imageUrls = [];
-        snapshot.forEach(doc => {
-          imageUrls.push(doc.data().imageUrl);
-        });
-        dispatch(receiveImageURLs(imageUrls));
-      });
+    if (firebase.auth().currentUser) {
+      firebase
+        .firestore()
+        .collection("images")
+        .where(
+          "userId",
+          "==",
+          firebase.auth().currentUser ? firebase.auth().currentUser.uid : ""
+        )
+        .orderBy("timestamp", "desc")
+        .onSnapshot(
+          snapshot => {
+            var imageUrls = [];
+            snapshot.forEach(doc => {
+              imageUrls.push(doc.data().imageUrl);
+            });
+            dispatch(receiveImageURLs(imageUrls));
+          },
+          err => {
+            console.error(`Encountered error: ${err}`);
+          }
+        );
+    }
   };
 }
 
 // Upload image to Firebase Storage and write the image url to Cloud Firestore
+// Firebase security rules can tell the uid of the user that called the functions from the frontend, therefore
+// uploadImage function is implemented at the frontend and the security rules at the backend are configured
+// to verify the uid during each function call
 export function uploadImage(imageFile) {
   return dispatch => {
     if (typeof imageFile.name == "string") {
@@ -78,6 +92,7 @@ export function uploadImage(imageFile) {
         })
         .then(function(messageRef) {
           var filePath =
+            "images/" +
             firebase.auth().currentUser.uid +
             "/" +
             messageRef.id +
