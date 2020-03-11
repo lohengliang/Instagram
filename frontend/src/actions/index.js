@@ -51,27 +51,12 @@ export function clearImageURLs() {
 export function fetchImageURLs() {
   return dispatch => {
     if (firebase.auth().currentUser) {
-      firebase
-        .firestore()
-        .collection("images")
-        .where(
-          "userId",
-          "==",
-          firebase.auth().currentUser ? firebase.auth().currentUser.uid : ""
-        )
-        .orderBy("timestamp", "desc")
-        .onSnapshot(
-          snapshot => {
-            var imageUrls = [];
-            snapshot.forEach(doc => {
-              imageUrls.push(doc.data().imageUrl);
-            });
-            dispatch(receiveImageURLs(imageUrls));
-          },
-          err => {
-            console.error(`Encountered error: ${err}`);
-          }
-        );
+      var fetchImageUrlsFromFirebase = firebase
+        .functions()
+        .httpsCallable("fetchImageURLs");
+      fetchImageUrlsFromFirebase({ text: "" }).then(function(imageUrls) {
+        dispatch(receiveImageURLs(imageUrls.data["imageUrls"]));
+      });
     }
   };
 }
@@ -83,46 +68,23 @@ export function fetchImageURLs() {
 export function uploadImage(imageFile) {
   return dispatch => {
     if (typeof imageFile.name == "string") {
+      var filePath =
+        "images" + "/" + firebase.auth().currentUser.uid + "/" + imageFile.name;
       firebase
-        .firestore()
-        .collection("images")
-        .add({
-          userId: firebase.auth().currentUser.uid,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then(function(messageRef) {
-          var filePath =
-            "images/" +
-            firebase.auth().currentUser.uid +
-            "/" +
-            messageRef.id +
-            "/" +
-            imageFile.name;
-          return firebase
-            .storage()
-            .ref(filePath)
-            .put(imageFile)
-            .then(function(fileSnapshot) {
-              return fileSnapshot.ref.getDownloadURL().then(url => {
-                return messageRef
-                  .update({
-                    imageUrl: url,
-                    storageUrl: fileSnapshot.metadata.fullPath
-                  })
-                  .then(function() {
-                    dispatch(fetchImageURLs());
-                  });
-              });
+        .storage()
+        .ref(filePath)
+        .put(imageFile)
+        .then(function(fileSnapshot) {
+          return fileSnapshot.ref.getDownloadURL().then(url => {
+            var updateImageURLToFirebase = firebase
+              .functions()
+              .httpsCallable("updateImageURL");
+            updateImageURLToFirebase({ imageURL: url }).then(function() {
+              dispatch(fetchImageURLs());
+              dispatch(clearImage());
             });
-        })
-        .catch(function(error) {
-          console.error(
-            "There was an error uploading a file to Cloud Storage:",
-            error
-          );
+          });
         });
-      dispatch(fetchImageURLs());
-      dispatch(clearImage());
     }
   };
 }
