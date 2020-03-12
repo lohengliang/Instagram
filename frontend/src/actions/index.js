@@ -82,7 +82,12 @@ export function uploadImage(imageFile) {
   return async dispatch => {
     if (typeof imageFile.name == "string") {
       const filePath =
-        "images/" + firebase.auth().currentUser.uid + "/" + imageFile.name;
+        "images/" +
+        firebase.auth().currentUser.uid +
+        "/" +
+        Date.now() +
+        "/" +
+        imageFile.name;
       const imageUrl = await firebase
         .storage()
         .ref(filePath)
