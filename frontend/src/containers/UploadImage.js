@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { clearImageURLs, selectImage, uploadImage } from "../actions";
+import { clearImageUrls, selectImage, uploadImage } from "../actions";
 import firebase from "../firebase";
 
 const UploadImage = ({ signedInUsername, selectedImageFile, dispatch }) => {
@@ -16,7 +16,7 @@ const UploadImage = ({ signedInUsername, selectedImageFile, dispatch }) => {
                 .auth()
                 .signOut()
                 .then(function() {
-                  dispatch(clearImageURLs());
+                  dispatch(clearImageUrls());
                 });
             }}
           >

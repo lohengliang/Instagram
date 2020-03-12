@@ -1,10 +1,10 @@
 import { combineReducers } from "redux";
-import imageURLsByUser from "./imageURLsByUser";
+import imageUrlsByUser from "./imageURLsByUser";
 import selectedImageFile from "./selectedImageFile";
 import signedInUsername from "./signedInUsername";
 
 export default combineReducers({
-  imageURLsByUser,
+  imageUrlsByUser,
   selectedImageFile,
   signedInUsername
 });

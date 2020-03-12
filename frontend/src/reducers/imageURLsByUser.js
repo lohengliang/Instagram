@@ -2,24 +2,24 @@ import { CLEAR_IMAGE_URLS, RECEIVE_IMAGE_URLS } from "../actions";
 
 // Urls of image that the UI needs to render
 const initialState = {
-  imageURLs: []
+  imageUrls: []
 };
 
-const imageURLsByUser = (state = initialState, action) => {
+const imageUrlsByUser = (state = initialState, action) => {
   switch (action.type) {
     case RECEIVE_IMAGE_URLS:
       return {
         ...state,
-        imageURLs: action.imageURLs
+        imageUrls: action.imageUrls
       };
     case CLEAR_IMAGE_URLS:
       return {
         ...state,
-        imageURLs: []
+        imageUrls: []
       };
     default:
       return state;
   }
 };
 
-export default imageURLsByUser;
+export default imageUrlsByUser;

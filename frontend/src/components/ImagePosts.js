@@ -10,10 +10,10 @@ export default class ImagePosts extends Component {
     return (
       <Container>
         <Row>
-          {this.props.imageURLs.map((imageURL, i) => (
+          {this.props.imageUrls.map((imageUrl, i) => (
             <Col md="4" key={i}>
               <Card>
-                <Card.Img key={i} src={imageURL} alt="" />
+                <Card.Img key={i} src={imageUrl} alt="" />
               </Card>
             </Col>
           ))}
@@ -23,5 +23,5 @@ export default class ImagePosts extends Component {
   }
 }
 ImagePosts.propTypes = {
-  imageURLs: PropTypes.array.isRequired
+  imageUrls: PropTypes.array.isRequired
 };
