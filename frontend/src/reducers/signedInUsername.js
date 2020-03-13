@@ -1,5 +1,6 @@
 import { GET_SIGNED_IN_USERNAME } from "../actions";
 
+// signedInUsername is used to create "{signedInUsername is currently logged in.}" message
 const initialState = {
   signedInUsername: ""
 };

@@ -45,9 +45,7 @@ export function clearImageUrls() {
 }
 
 /* Fetch image urls that are linked to the logged in user
-Firebase security rules can tell the uid of the user that called the functions from the frontend, therefore
-fetchImageUrls function is implemented at the frontend and the security rules at the backend are configured
-to verify the uid during each function call */
+Used Firebase function to retrieve image urls as it has a real time update feature through the onSnapshot function. */
 export function fetchImageUrls() {
   return dispatch => {
     if (firebase.auth().currentUser) {
@@ -64,9 +62,9 @@ export function fetchImageUrls() {
           if (!firebase.auth().currentUser) {
             unsubscribe();
           }
-          var imageUrls = [];
+          let imageUrls = [];
           snapshot.forEach(doc => {
-            imageUrls.push(doc.data().imageUrl);
+            imageUrls.push([doc.data().imageUrl, doc.data().filePath]);
           });
           dispatch(receiveImageUrls(imageUrls));
         });
@@ -75,9 +73,7 @@ export function fetchImageUrls() {
 }
 
 /* Upload image to Firebase Storage and write the image url to Cloud Firestore
-Firebase security rules can tell the uid of the user that called the functions from the frontend, therefore
-uploadImage function is implemented at the frontend and the security rules at the backend are configured
-to verify the uid during each function call */
+Used Firebase Storage function in order to get the download url of the image. */
 export function uploadImage(imageFile) {
   return async dispatch => {
     if (typeof imageFile.name == "string") {
@@ -97,11 +93,26 @@ export function uploadImage(imageFile) {
             return Url;
           });
         });
-      var updateImageUrlToFirebase = firebase
+      const addImageUrlToFirebase = firebase
         .functions()
-        .httpsCallable("updateImageUrl");
-      updateImageUrlToFirebase({ imageUrl: imageUrl });
+        .httpsCallable("addImageUrl");
+      addImageUrlToFirebase({ imageUrl: imageUrl, filePath: filePath });
       dispatch(clearImage());
     }
+  };
+}
+
+// Delete the image from Firebase Storage as well as delete the related document from Firestore
+export function deleteImage(imageFilePath) {
+  return dispatch => {
+    firebase
+      .storage()
+      .ref(imageFilePath)
+      .delete();
+    const deleteImageUrlFromFirebase = firebase
+      .functions()
+      .httpsCallable("deleteImageUrl");
+    deleteImageUrlFromFirebase({ filePath: imageFilePath });
+    dispatch(clearImage());
   };
 }

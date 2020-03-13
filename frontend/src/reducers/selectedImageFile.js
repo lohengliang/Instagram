@@ -1,5 +1,6 @@
 import { CLEAR_IMAGE, SELECT_IMAGE } from "../actions";
 
+// selectedImageFile is the image file that the user selected to upload
 const initialState = {
   selectedImageFile: []
 };

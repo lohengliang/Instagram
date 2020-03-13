@@ -24,3 +24,4 @@ yarn-error.log*
 
 security_rules.txt
 .gitignore.txt
+/test_images

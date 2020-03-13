@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { clearImageUrls, selectImage, uploadImage } from "../actions";
 import firebase from "../firebase";
 
+// Container that holds the login message, logout button, choose file button and upload image button
 const UploadImage = ({ signedInUsername, selectedImageFile, dispatch }) => {
   return (
     <div>

@@ -12,7 +12,7 @@ import firebase from "../firebase";
 import UploadImage from "./UploadImage";
 const firebaseui = require("firebaseui");
 
-// Use firebase ui to handle user login
+// Use Firebase UI to handle user login
 const ui = new firebaseui.auth.AuthUI(firebase.auth());
 
 class AsyncApp extends Component {
@@ -28,6 +28,8 @@ class AsyncApp extends Component {
       signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
       credentialHelper: firebaseui.auth.CredentialHelper.NONE
     };
+    /* Clear redux store and load Firebase UI during user log out event, update the redux store during
+    user login event */
     firebase.auth().onAuthStateChanged(user => {
       if (!user) {
         dispatch(getSignedInUsername(""));

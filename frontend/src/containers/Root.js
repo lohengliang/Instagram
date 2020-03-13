@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import configureStore from "../configureStore.js";
 import AsyncApp from "./AsyncApp.js";
 
+// Create a Material UI theme where the primary colour of the button is blue.
 const theme = createMuiTheme({
   palette: {
     primary: blue

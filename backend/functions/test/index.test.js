@@ -1,3 +1,6 @@
+/* eslint-disable promise/always-return */
+/* eslint-disable promise/no-nesting */
+/* eslint-disable promise/catch-or-return */
 const chai = require("chai");
 const assert = chai.assert;
 
@@ -29,53 +32,92 @@ describe("Test cloud function", () => {
       .firestore()
       .collection("images")
       .where("userId", "==", "userForTestingPurpose");
-    // eslint-disable-next-line promise/catch-or-return
     query.get().then(querySnapshot => {
       querySnapshot.forEach(doc => {
         doc.ref.delete();
       });
-      return;
     });
-    return;
+    const query2 = admin
+      .firestore()
+      .collection("images")
+      .where("userId", "==", "userForTestingPurpose2");
+    query2.get().then(querySnapshot => {
+      querySnapshot.forEach(doc => {
+        doc.ref.delete();
+      });
+    });
   });
 
-  describe("Test updateImageUrl function", () => {
-    it("should update database with new image url", () => {
+  describe("Test addImageUrl function", () => {
+    it("should add image url into the database", () => {
+      // Sample data
       const snap = {
         imageUrl: "www.imageurl.com",
         timestamp: Date.now(),
-        userId: "userForTestingPurpose"
+        userId: "userForTestingPurpose",
+        filePath: "images/testFilePath"
       };
 
-      const wrapped = test.wrap(myFunctions.updateImageUrl);
+      /* Query Firestore for sample data. If there is data that matches the sample data, it means the 
+      function addImageUrl is working. */
+      const wrapped = test.wrap(myFunctions.addImageUrl);
       wrapped(snap, {
         auth: {
           uid: "userForTestingPurpose"
         }
-      });
-      return (
-        admin
+      }).then(() => {
+        return admin
           .firestore()
           .collection("images")
+          .where("userId", "==", "userForTestingPurpose")
           .get()
-          // eslint-disable-next-line promise/always-return
           .then(dataSnapshot => {
-            var dataEqual = false;
-            const check = dataSnapshot.forEach(doc => {
-              if (
-                doc.data().imageUrl === snap.imageUrl &&
-                doc.data().userId === snap.userId
-              ) {
-                dataEqual = true;
-              }
-            });
-            if (dataEqual) {
-              return assert.equal(true, true);
-            } else {
-              return assert.equal("Not found", true);
+            if (dataSnapshot.empty) {
+              return assert.equal("Data Not Found", true);
             }
-          })
-      );
+            return assert.equal(true, true);
+          });
+      });
+    });
+  });
+
+  describe("Test deleteImageUrl function", () => {
+    it("should delete image url from the database", () => {
+      // Sample data
+      const snap = {
+        imageUrl: "www.imageurl2.com",
+        timestamp: Date.now(),
+        userId: "userForTestingPurpose2",
+        filePath: "images/testFilePath2"
+      };
+
+      let dataFoundBeforeDelete = false;
+      const documentRef = admin
+        .firestore()
+        .collection("images")
+        .add(snap)
+        .then(documentRef => {
+          return documentRef;
+        });
+
+      const wrapped = test.wrap(myFunctions.deleteImageUrl);
+      wrapped(snap, {
+        auth: {
+          uid: "userForTestingPurpose2"
+        }
+      }).then(() => {
+        return admin
+          .firestore()
+          .collection("images")
+          .where("userId", "==", "userForTestingPurpose2")
+          .get()
+          .then(dataSnapshot => {
+            if (dataSnapshot.empty) {
+              return assert.equal(true, true);
+            }
+            return assert.equal("Data Not Deleted", true);
+          });
+      });
     });
   });
 });
